@@ -1,5 +1,7 @@
-import streamlit as st
+from pathlib import Path
+
 import pandas as pd
+import streamlit as st
 
 st.set_page_config(
     page_title="Dashboard Prospera",
@@ -9,10 +11,35 @@ st.set_page_config(
 st.title("Dashboard Prospera – Versão Web")
 st.caption("Baseado na planilha 'Plano Estratégico - 2026.xlsm'")
 
+def get_excel_path() -> Path:
+    """Return the path to the strategic plan spreadsheet.
+
+    The primary expected file name is ``Plano Estratégico - 2026.xlsm``. However,
+    to make local and deployed environments more resilient to Unicode filename
+    normalisation differences, we fallback to the first ``*.xlsm`` file that
+    matches the "Plano Estrat" prefix.
+    """
+
+    base_dir = Path(__file__).resolve().parent
+    default_path = base_dir / "Plano Estratégico - 2026.xlsm"
+
+    if default_path.exists():
+        return default_path
+
+    alternatives = sorted(base_dir.glob("Plano Estrat*2026*.xlsm"))
+    if alternatives:
+        return alternatives[0]
+
+    raise FileNotFoundError(
+        "Não foi possível localizar a planilha 'Plano Estratégico - 2026.xlsm'."
+    )
+
+
 @st.cache_data
 def load_excel():
+    excel_path = get_excel_path()
     xls = pd.read_excel(
-        "Plano Estratégico - 2026.xlsm",
+        excel_path,
         sheet_name=None,
         engine="openpyxl"
     )
