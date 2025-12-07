@@ -56,10 +56,28 @@ abas = list(dados.keys())
 st.sidebar.header("Navegação")
 aba_selecionada = st.sidebar.selectbox("Selecione a aba da planilha:", abas)
 
-df = dados[aba_selecionada]
+# Inicializa o estado de edição para cada aba
+if "abas_editaveis" not in st.session_state:
+    st.session_state["abas_editaveis"] = {}
+
+if aba_selecionada not in st.session_state["abas_editaveis"]:
+    # Convertemos para ``object`` para permitir textos e fórmulas mesmo em colunas numéricas.
+    st.session_state["abas_editaveis"][aba_selecionada] = dados[aba_selecionada].astype(object)
+
+df_editavel = st.session_state["abas_editaveis"][aba_selecionada]
 
 st.subheader(f"Aba selecionada: {aba_selecionada}")
-st.dataframe(df, use_container_width=True)
+df_editado = st.data_editor(
+    df_editavel,
+    num_rows="dynamic",
+    use_container_width=True,
+    hide_index=True,
+    key=f"editor_{aba_selecionada}",
+    help="Clique em uma célula para editar. É possível colar valores ou fórmulas (texto)."
+)
+
+# Atualiza o estado compartilhado com a versão editada para a aba atual
+st.session_state["abas_editaveis"][aba_selecionada] = df_editado
 
 st.info(
     "Esse é o app base. Depois transformaremos as fórmulas do Excel em cálculos Python "
