@@ -73,7 +73,10 @@ df_editado = st.data_editor(
     use_container_width=True,
     hide_index=True,
     key=f"editor_{aba_selecionada}",
-    help="Clique em uma célula para editar. É possível colar valores ou fórmulas (texto)."
+)
+
+st.caption(
+    "Clique em uma célula para editar. É possível colar valores ou fórmulas (texto)."
 )
 
 # Atualiza o estado compartilhado com a versão editada para a aba atual
